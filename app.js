@@ -6,6 +6,7 @@ class TrackerCalories{
         this._meals = []
         this._workouts = []
 
+        this._displayCaloriesProgress()
         this._displayCaloriesRemaining()
         this._displayCaloriesConsumed()
         this._displayCaloriesTotal()
@@ -56,12 +57,19 @@ class TrackerCalories{
         const remaining = this._caloriesLimit - this._totalCalories
         caloriesRemainingEl.innerHTML = remaining
     }
+    _displayCaloriesProgress(){
+        const progresEl = document.querySelector("#calorie-progress")
+        const percentage = (this._totalCalories / this._caloriesLimit) * 100
+        const width = Math.min(percentage, 100)
+        progresEl.style.width = `${width}%`
+    }
 
     _render(){
         this._displayCaloriesTotal()
         this._displayCaloriesConsumed()
         this._displayCaloriesBurned()
         this._displayCaloriesRemaining()
+        this._displayCaloriesProgress()
     }
 }
 
