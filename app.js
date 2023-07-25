@@ -88,12 +88,49 @@ class Workout{
     }
 }
 
-const tracker = new TrackerCalories()
+class App{
+    constructor(){
+        this._tracker = new TrackerCalories()
 
-const lebenita = new Meal('Lebenita', 100)
-tracker.addMeal(lebenita)
+        document.querySelector('.meal-form').addEventListener('submit', this._addNewMeal.bind(this))
+        document.querySelector('.workout-form').addEventListener('submit', this._addNewWorkout.bind(this))
+    }
 
-const run = new Workout("Run", 80)
-tracker.addWorkout(run)
+    _addNewMeal(e){
+        e.preventDefault()
 
-console.log(tracker);
+        const name = document.querySelector('.meal-name')
+        const calories = document.querySelector('.meal-calories')
+
+        if(name.value === "" || calories.value === ""){
+            alert("Add meal name and calories")
+            return
+        }
+        const meal = new Meal(name.value, +calories.value)
+
+        this._tracker.addMeal(meal)
+
+        name.value = ""
+        calories.value =""
+    }
+    _addNewWorkout(e){
+        e.preventDefault()
+
+        const name = document.querySelector('.workout-name')
+        const calories = document.querySelector('.workout-calories')
+
+        if(name.value === "" || calories.value === ""){
+            alert("Add workout name and calories")
+            return
+        }
+
+        const workout = new Workout(name.value, +calories.value)
+
+        this._tracker.addWorkout(workout)
+
+        name.value = ""
+        calories.value =""
+    }
+}
+
+const app = new App()
