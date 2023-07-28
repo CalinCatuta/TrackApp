@@ -27,6 +27,29 @@ class TrackerCalories{
         this._displayNewWorkout(workout)
         this._render()
     }
+    removeMeal(id){
+        // we are looping through the meals array and we take each meal and check if the meal.id is the same with the id we passed in removeMeal(id)
+        const index = this._meals.findIndex((meal) => meal.id === id)
+    
+        if(index !== -1){
+            const meal = this._meals[index]
+            this._totalCalories -= meal.calories
+            this._meals.splice(index, 1)
+            this._render()
+        }
+    }
+    removeWorkout(id){
+        
+        const index = this._workouts.findIndex((workout) => workout.id === id)
+    
+        if(index !== -1){
+            const workout = this._workouts[index]
+            this._totalCalories += workout.calories
+            this._workouts.splice(index, 1)
+            this._render()
+        }
+    }
+
     // Private methods
     _displayCaloriesTotal(){
         const caloriesTotalEl = document.querySelector('.total-calories')
@@ -69,6 +92,8 @@ class TrackerCalories{
     _displayNewMeal(meal){
         const mealDiv = document.createElement('div')
         const divForMeal = document.querySelector('.meal-div')
+        mealDiv.classList.add('card')
+        mealDiv.setAttribute('data-id', meal.id)
 
         mealDiv.innerHTML = `
         <h1>${meal.name}</h1>
@@ -81,11 +106,12 @@ class TrackerCalories{
     _displayNewWorkout(workout){
         const workoutDiv = document.createElement('div')
         const divForWorkout = document.querySelector('.workout-div')
-
+        workoutDiv.classList.add('card')
+        workoutDiv.setAttribute('data-id', workout.id)
         workoutDiv.innerHTML = `
         <h1>${workout.name}</h1>
         <h1>${workout.calories}</h1>
-        <button class="remove-meal">X</button>
+        <button class="remove-workout">X</button>
         `
 
         divForWorkout.append(workoutDiv)
@@ -120,45 +146,73 @@ class Workout{
 class App{
     constructor(){
         this._tracker = new TrackerCalories()
+        // pass in argument which will be the type of item
+        // we use bind(this) bcs if we use this in the function without bind the this(key) don't mean the App
+        document.querySelector('.meal-form').addEventListener('submit', this._addNewItem.bind(this, "meal"))
+        document.querySelector('.workout-form').addEventListener('submit', this._addNewItem.bind(this, "workout"))
 
-        document.querySelector('.meal-form').addEventListener('submit', this._addNewMeal.bind(this))
-        document.querySelector('.workout-form').addEventListener('submit', this._addNewWorkout.bind(this))
+        document.querySelector('.meal-div')
+        .addEventListener('click', this._removeItem.bind(this, 'meal'))
+        document.querySelector('.workout-div')
+        .addEventListener('click', this._removeItem.bind(this, 'workout'))
     }
 
-    _addNewMeal(e){
+    // take the type
+    // on submite the function will check which form was submitet then
+    // if the meal-form is submitet the type become "meal" then the function take the value and pass it where we call the type
+    _addNewItem(type, e){
         e.preventDefault()
 
-        const name = document.querySelector('.meal-name')
-        const calories = document.querySelector('.meal-calories')
+        const name = document.querySelector(`.${type}-name`)
+        const calories = document.querySelector(`.${type}-calories`)
 
         if(name.value === "" || calories.value === ""){
             alert("Add meal name and calories")
             return
         }
-        const meal = new Meal(name.value, +calories.value)
-
-        this._tracker.addMeal(meal)
+        if(type === "meal"){
+            const meal = new Meal(name.value, +calories.value)
+    
+            this._tracker.addMeal(meal)
+        }else{
+            const workout = new Workout(name.value, +calories.value)
+            this._tracker.addWorkout(workout)
+        }
 
         name.value = ""
         calories.value =""
     }
-    _addNewWorkout(e){
-        e.preventDefault()
+    // _addNewWorkout(e){
+    //     e.preventDefault()
 
-        const name = document.querySelector('.workout-name')
-        const calories = document.querySelector('.workout-calories')
+    //     const name = document.querySelector('.workout-name')
+    //     const calories = document.querySelector('.workout-calories')
 
-        if(name.value === "" || calories.value === ""){
-            alert("Add workout name and calories")
-            return
+    //     if(name.value === "" || calories.value === ""){
+    //         alert("Add workout name and calories")
+    //         return
+    //     }
+
+    //     const workout = new Workout(name.value, +calories.value)
+
+    //     this._tracker.addWorkout(workout)
+
+    //     name.value = ""
+    //     calories.value =""
+    // }
+
+    _removeItem(type, e){
+        if(e.target.classList.contains('remove-meal')){
+            // when we click on remove-meal btn the id = closest > card > id and the closest card will by the card where the button is in.
+            const id = e.target.closest('.card').getAttribute('data-id')
+            // if the type is meal ?(then) run removeMeal(pass the id we got from the closest card on btn click) :(Else) run removeWorkout(pass the id ......)
+            // create this public function in tracker object and use them to remove the data from the app not only the card
+            type === "meal"
+             ? this._tracker.removeMeal(id)
+             : this._tracker.removeWorkout(id)
+            // remove the closest card from the button we click
+             e.target.closest('.card').remove()
         }
-
-        const workout = new Workout(name.value, +calories.value)
-
-        this._tracker.addWorkout(workout)
-
-        name.value = ""
-        calories.value =""
     }
 }
 
