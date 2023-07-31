@@ -30,10 +30,12 @@ class TrackerCalories{
     removeMeal(id){
         // we are looping through the meals array and we take each meal and check if the meal.id is the same with the id we passed in removeMeal(id)
         const index = this._meals.findIndex((meal) => meal.id === id)
-    
+        //if meal.id match with id the index will be the meal order in the Array - > meals[{'Orez'}, {'Pui'}] meals[{0}, {1}] meals[{index}, {index}]
         if(index !== -1){
             const meal = this._meals[index]
+            // here the meal become the object from the array
             this._totalCalories -= meal.calories
+            // remove the meal from the array index is the object we want to remove and 1 is the number we want to remove in this case 1 object.
             this._meals.splice(index, 1)
             this._render()
         }
@@ -48,6 +50,13 @@ class TrackerCalories{
             this._workouts.splice(index, 1)
             this._render()
         }
+    }
+
+    reset(){
+        this._totalCalories = 0
+        this._meals = []
+        this._workouts = []
+        this._render()
     }
 
     // Private methods
@@ -155,6 +164,14 @@ class App{
         .addEventListener('click', this._removeItem.bind(this, 'meal'))
         document.querySelector('.workout-div')
         .addEventListener('click', this._removeItem.bind(this, 'workout'))
+
+        document.querySelector('.meal-filter')
+        .addEventListener('keyup', this._filterItem.bind(this, 'meal'))
+        document.querySelector('.workout-filter')
+        .addEventListener('keyup', this._filterItem.bind(this, 'workout'))
+
+        document.querySelector('.reset-day')
+        .addEventListener('click', this._reset.bind(this))
     }
 
     // take the type
@@ -213,6 +230,28 @@ class App{
             // remove the closest card from the button we click
              e.target.closest('.card').remove()
         }
+    }
+    _filterItem(type, e){
+        const text = e.target.value.toLowerCase()
+        document.querySelectorAll(`.${type}-div .card`).forEach(item => {
+        const name = item.firstElementChild.textContent
+
+        // if they dosen't match the result will be -1
+        // if the result is !==(not equal) that check if name match with text bcs if they match then the result is not equal with -1.
+        if(name.toLowerCase().indexOf(text) !== -1){
+            item.style.display = 'block'
+        }else{
+            item.style.display = 'none'
+        }
+       })
+        
+    }
+    _reset(){
+        this._tracker.reset()
+        document.querySelector('.meal-div').innerHTML = ''
+        document.querySelector('.workout-div').innerHTML = ''
+        document.querySelector('.meal-filter').value = ''
+        document.querySelector('.workout-filter').value = ''
     }
 }
 
